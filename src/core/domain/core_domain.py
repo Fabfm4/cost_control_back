@@ -1,8 +1,18 @@
 from datetime import datetime
 
-from typing import Annotated, Optional, Type, TypeVar
+from typing import Annotated, Callable, List, Optional, Type, TypeVar
 
-from pydantic import BaseModel, BeforeValidator, Field, ValidationError, field_validator, model_validator, root_validator, validator
+from pydantic import BaseModel, BeforeValidator, Field, ValidationError
+
+
+PyObjectId = Annotated[str, BeforeValidator(str)]
+T = TypeVar('T', bound=BaseModel)
+query_set = TypeVar('query_set', bound=str)
+callableListDataModel = Callable[[Optional[query_set]], List[T]]
+callableCountListDataModel = Callable[[Optional[query_set]], int]
+callableUpdateDataModel = Callable[[str, T], T]
+callableCreateDataModel = Callable[[T], T]
+callable404Error = Callable[[str, Optional[str]], None]
 
 
 def validate_timestamp(v, handler):
@@ -14,10 +24,6 @@ def validate_timestamp(v, handler):
     except ValidationError:
         # validation failed, in this case we want to return a default value
         return datetime(2000, 1, 1)
-
-
-PyObjectId = Annotated[str, BeforeValidator(str)]
-T = TypeVar('T', bound=BaseModel)
 
 
 class _RawModel(BaseModel):
@@ -40,7 +46,7 @@ class _CatalogModel(_RawModel):
 def get_collection_model(base_model: type[T]) -> Type[T]:
 
     class CollectionModel(BaseModel):
-        data: Optional[list[base_model]]
+        data: Optional[List[base_model]]
         current_page: int = Field(default=0)
 
     return CollectionModel

@@ -23,7 +23,14 @@ class MongoDBConection:
         self.collection = self.db.get_collection(
             self.collection_name)
 
-    async def get_all(self) -> motor.motor_asyncio.AsyncIOMotorCursor:
+    async def count_query_db(self, query: dict = {}):
+        return await self.collection.count_documents(query)
+
+    async def query_db(self, query: dict = {}):
+        query_solution = self.collection.find(query)
+        return await query_solution.to_list(length=None)
+
+    async def get_all(self) -> list[T]:
         return await self.collection.find().to_list(length=None)
 
     async def get_one(self, object_id: str):
@@ -37,23 +44,21 @@ class MongoDBConection:
 
         raise HTTPException(status_code=404, detail=f"Bank {object_id} not found")
 
-    async def create(self, model: T) -> bool:
-        data = model.model_dump(by_alias=True, exclude=["id"])
-        return await self.collection.insert_one(data)
+    async def create(self, model_data: dict) -> bool:
+        return await self.collection.insert_one(model_data)
 
-    def update(self, object_id: str, object_data: dict):
-        try:
-            _id = ObjectId(object_id)
-            object_updated = self.collection.find_one_and_update(
-                {"_id": _id},
-                {"$set": object_data},
-                return_document=ReturnDocument.AFTER
-            )
-            if object_updated:
-                return object_updated
-        except InvalidId:
-            pass
-        raise HTTPException(status_code=404, detail=f"Bank {object_id} not found")
+    def update(self, object_id: ObjectId, object_data: dict):
+        return self.collection.find_one_and_update(
+            {"_id": object_id},
+            {"$set": object_data},
+            return_document=ReturnDocument.AFTER
+        )
 
-    # def delete(self, user_id):
-    #     return self.collection.delete_one({"_id": ObjectId(user_id)})
+
+async def mixin_list_objects(self):
+    return await self.collection.find().to_list(length=None)
+
+
+def raise_404_error(model_name: str, extra_message: str = ''):
+    raise HTTPException(
+        status_code=404, detail=f'{model_name} not found {extra_message}')

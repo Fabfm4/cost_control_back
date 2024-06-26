@@ -1,8 +1,15 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from bson import ObjectId
+from bson.objectid import InvalidId
 
+from fastapi import APIRouter, Body, status
+
+from src.core.infrastructure.db import raise_404_error
+from src.bank.application.bank_app import (
+    create_bank, list_bank, get_bank, update_bank, delete_bank)
 from src.core.domain.core_domain import T, get_collection_model
 from src.bank.infrastructure.db.bank_db import BankDB
-from src.bank.domain.bank_domain import BankModel
+from src.bank.domain.bank_domain import (
+    BankModel, BankModelRequest)
 
 
 router = APIRouter(
@@ -19,12 +26,11 @@ CollectionModel: type[T] = get_collection_model(BankModel)
         "/",
         response_description="List all banks",
         response_model=CollectionModel,
-        response_model_by_alias=False,
+        response_model_by_alias=False
         )
-async def list_banks():
-    bank_data = await BankDB().get_all()
-    collection_demo = CollectionModel(data=bank_data)
-    return collection_demo
+async def list_bank_router(q: str = None):
+    bank_db_conn = BankDB()
+    return CollectionModel(data=await list_bank(bank_db_conn.query_db))
 
 
 @router.post(
@@ -34,33 +40,57 @@ async def list_banks():
         response_model_by_alias=False,
         status_code=status.HTTP_201_CREATED,
         )
-async def create_bank(bank: BankModel = Body(...)):
+async def create_bank_router(bank: BankModelRequest = Body(...)):
     db_object = BankDB()
-    bank_created = await db_object.create(bank)
-    return await db_object.get_one(bank_created.inserted_id)
+    return await create_bank(bank, db_object.create, db_object.query_db)
+
 
 @router.get(
-        "/{bank_id}",
+        "/{pk}",
         response_description="Get a single bank",
         response_model=BankModel,
         response_model_by_alias=False,
         )
-async def get_bank(bank_id: str):
-    return await BankDB().get_one(bank_id)
+async def get_bank_router(pk: str):
+    try:
+        _id = ObjectId(pk)
+        bank_db_conn = BankDB()
+        return await get_bank(
+            _id, bank_db_conn.query_db, raise_404_error)
+
+    except InvalidId:
+        raise_404_error('bank', pk)
 
 
 @router.put(
-        "/{bank_id}",
+        "/{pk}",
         response_description="Update a bank",
         response_model=BankModel,
         response_model_by_alias=False,
         )
-async def update_bank(bank_id: str, bank: BankModel = Body(...)):
-    db_object = BankDB()
-    bank_object = await db_object.get_one(bank_id)
-    bank._set_updated_at()
-    data_raw = {k: v for k, v in bank.model_dump(by_alias=True).items() if v is not None}
-    if data_raw:
-        return await BankDB().update(bank_id, data_raw)
+async def update_bank_router(pk: str, bank: BankModelRequest = Body(...)):
+    try:
+        _id = ObjectId(pk)
+        bank_db_conn = BankDB()
+        return await update_bank(
+            _id, bank, bank_db_conn.count_query_db,
+            bank_db_conn.update, raise_404_error)
 
-    return bank_object
+    except InvalidId:
+        raise_404_error('bank', pk)
+
+
+@router.delete(
+    '/{pk}',
+    response_description="Delete a bank"
+    )
+async def delete_bank_router(pk: str):
+    try:
+        _id = ObjectId(pk)
+        bank_db_conn = BankDB()
+        return await delete_bank(
+            _id, bank_db_conn.query_db,
+            bank_db_conn.update, raise_404_error)
+
+    except InvalidId:
+        raise_404_error('bank', pk)

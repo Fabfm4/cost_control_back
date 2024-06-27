@@ -6,12 +6,15 @@ from pydantic import BaseModel, BeforeValidator, Field, ValidationError
 
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
-T = TypeVar('T', bound=BaseModel)
+bModel = TypeVar('bModel', bound=BaseModel)
+base_upd_mod = TypeVar('base_upd_mod', bound=BaseModel)
+bmrModel = TypeVar('bmrModel', bound=BaseModel)
+
 query_set = TypeVar('query_set', bound=str)
-callableListDataModel = Callable[[Optional[query_set]], List[T]]
+callableListDataModel = Callable[[Optional[query_set]], List[bModel]]
 callableCountListDataModel = Callable[[Optional[query_set]], int]
-callableUpdateDataModel = Callable[[str, T], T]
-callableCreateDataModel = Callable[[T], T]
+callableUpdateDataModel = Callable[[str, bModel], bModel]
+callableCreateDataModel = Callable[[bModel], bModel]
 callable404Error = Callable[[str, Optional[str]], None]
 
 
@@ -27,15 +30,11 @@ def validate_timestamp(v, handler):
 
 
 class _RawModel(BaseModel):
+
     id: Optional[PyObjectId] = Field(alias='_id', default=None)
-    created_at: datetime = Field(default=None)
+    created_at: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now())
     updated_at: Optional[datetime] = Field(default=None)
-
-    def _set_updated_at(self):
-        self.updated_at = datetime.now()
-
-    def _set_created_at(self):
-        self.created_at = datetime.now()
 
 
 class _CatalogModel(_RawModel):
@@ -43,7 +42,7 @@ class _CatalogModel(_RawModel):
     is_active: bool = Field(default=True)
 
 
-def get_collection_model(base_model: type[T]) -> Type[T]:
+def get_collection_model(base_model: type[bModel]) -> Type[bModel]:
 
     class CollectionModel(BaseModel):
         data: Optional[List[base_model]]

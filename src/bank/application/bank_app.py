@@ -1,12 +1,20 @@
 from typing import List
 
 from bson import ObjectId
-from src.bank.domain.bank_domain import (
+from core.application import (
+    create_mixin,
+    delete_mixin,
+    get_mixin,
+    list_mixin,
+    update_mixin
+)
+from bank.domain.bank_domain import (
     BankModel,
-    BankModelRequest,
+    BankModelMandatoryRequest,
     BankModelUpdate,
-    BankModelCreate)
-from src.core.domain.core_domain import (
+    CardModelUpdateRequest
+)
+from core.domain import (
     callableListDataModel,
     callableUpdateDataModel,
     callableCreateDataModel,
@@ -17,7 +25,7 @@ from src.core.domain.core_domain import (
 async def list_bank(
         list_db_bank_callable: callableListDataModel
         ) -> List[BankModel]:
-    return await list_db_bank_callable({"is_active": True})
+    return await list_mixin(list_db_bank_callable, {"is_active": True})
 
 
 async def get_bank(
@@ -25,42 +33,32 @@ async def get_bank(
         get_db_bank_callable: callableListDataModel,
         raise_404_error: callable404Error
         ) -> BankModel:
-    bank_object = await get_db_bank_callable({'_id': pk})
-    if not bank_object:
-        raise_404_error('bank', str(pk))
-
-    return BankModel(**bank_object[0])
+    return await get_mixin(pk, get_db_bank_callable, raise_404_error)
 
 
 async def create_bank(
-        bank_data: BankModelRequest,
+        bank_data: BankModelMandatoryRequest,
         create_db_bank_callable: callableCreateDataModel,
         get_db_bank_callable: callableListDataModel
         ) -> BankModel:
-    bank_data = BankModelCreate(
-        **bank_data.model_dump(by_alias=True))
-    bank_object_creted = await create_db_bank_callable(
-        bank_data.model_dump(by_alias=True))
-    bank_object = await get_db_bank_callable(
-        {'_id': bank_object_creted.inserted_id})
-    return BankModel(**bank_object[0])
+    return await create_mixin(
+        bank_data,
+        create_db_bank_callable,
+        get_db_bank_callable,
+        BankModel)
 
 
 async def update_bank(
         pk: ObjectId,
-        bank_data_update: BankModelRequest,
+        bank_data_update: CardModelUpdateRequest,
         count_db_bank_callable: callableListDataModel,
         update_db_bank_callable: callableUpdateDataModel,
         raise_404_error: callable404Error
         ) -> BankModel:
-    if (await count_db_bank_callable({'_id': pk})) < 1:
-        raise_404_error('bank', str(pk))
-
-    bank_data_update = BankModelUpdate(
-        **bank_data_update.model_dump(by_alias=True))
-    bank_object = await update_db_bank_callable(
-        pk, bank_data_update.model_dump(by_alias=True))
-    return bank_object
+    return await update_mixin(
+        pk, bank_data_update, count_db_bank_callable, update_db_bank_callable,
+        raise_404_error, BankModelUpdate
+    )
 
 
 async def delete_bank(
@@ -69,8 +67,5 @@ async def delete_bank(
         update_db_bank_callable: callableUpdateDataModel,
         raise_404_error: callable404Error
         ) -> None:
-    bank_object = await get_db_bank_callable({'_id': pk})
-    if not bank_object:
-        raise_404_error('bank', str(pk))
-
-    await update_db_bank_callable(pk, {"is_active": False})
+    return await delete_mixin(
+        pk, get_db_bank_callable, update_db_bank_callable, raise_404_error)

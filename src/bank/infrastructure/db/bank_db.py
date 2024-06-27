@@ -1,4 +1,4 @@
-from src.core.infrastructure.db import MongoDBConection
+from core.infrastructure.db import MongoDBConection
 
 
 class BankDB(MongoDBConection):

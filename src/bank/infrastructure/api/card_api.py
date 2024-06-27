@@ -1,8 +1,16 @@
+from bson import ObjectId
+from bson.objectid import InvalidId
+
 from fastapi import APIRouter, Body, status
 
-from src.core.domain.core_domain import T, get_collection_model
-from src.bank.infrastructure.db.card_db import CardDB
-from src.bank.domain.card_domain import CardModel, CardModelUpdate
+from core.infrastructure.db import raise_404_error
+from bank.application.card_app import (
+    create_card, list_card, get_card, update_card, delete_card)
+from core.domain import bModel, get_collection_model
+from bank.infrastructure.db.card_db import CardDB
+from bank.domain.card_domain import (
+    CardModel, CardModelMandatoryRequest, CardModelUpdateRequest
+)
 
 
 router = APIRouter(
@@ -12,7 +20,7 @@ router = APIRouter(
 )
 
 
-CollectionModel: type[T] = get_collection_model(CardModel)
+CollectionModel: type[bModel] = get_collection_model(CardModel)
 
 
 @router.get(
@@ -21,10 +29,8 @@ CollectionModel: type[T] = get_collection_model(CardModel)
         response_model=CollectionModel,
         response_model_by_alias=False,
         )
-async def list_cards():
-    card_data = await CardDB().get_all()
-    collection_demo = CollectionModel(data=card_data)
-    return collection_demo
+async def list_card_router():
+    return CollectionModel(data=await list_card(CardDB.query_db))
 
 
 @router.post(
@@ -34,35 +40,54 @@ async def list_cards():
         response_model_by_alias=False,
         status_code=status.HTTP_201_CREATED,
         )
-async def create_card(card: CardModel = Body(...)):
-    db_object = CardDB()
-    card._set_created_at()
-    card_created = await db_object.create(card)
-    return await db_object.get_one(card_created.inserted_id)
+async def create_card_router(card: CardModelMandatoryRequest = Body(...)):
+    return await create_card(card, CardDB.create, CardDB.query_db)
 
 
 @router.get(
-        "/{card_id}",
+        "/{pk}",
         response_description="Get a single card",
         response_model=CardModel,
         response_model_by_alias=False,
         )
-async def get_card(card_id: str):
-    return await CardDB().get_one(card_id)
+async def get_card_router(pk: str):
+    try:
+        _id = ObjectId(pk)
+        return await get_card(
+            _id, CardDB.query_db, raise_404_error)
+
+    except InvalidId:
+        raise_404_error('card', pk)
 
 
 @router.put(
-        "/{card_id}",
+        "/{pk}",
         response_description="Update a card",
-        response_model=CardModelUpdate,
+        response_model=CardModel,
         response_model_by_alias=False,
         )
-async def update_card(card_id: str, card: CardModelUpdate = Body(...)):
-    db_object = CardDB()
-    card_object = await db_object.get_one(card_id)
-    card._set_updated_at()
-    data_raw = {k: v for k, v in card.model_dump(by_alias=True).items() if v is not None}
-    if data_raw:
-        return await CardDB().update(card_id, data_raw)
+async def update_card_router(
+        pk: str, card: CardModelUpdateRequest = Body(...)):
+    try:
+        _id = ObjectId(pk)
+        return await update_card(
+            _id, card, CardDB.count_query_db,
+            CardDB.update, raise_404_error)
 
-    return card_object
+    except InvalidId:
+        raise_404_error('bank', pk)
+
+
+@router.delete(
+    '/{pk}',
+    response_description="Delete a card"
+    )
+async def delete_bank_router(pk: str):
+    try:
+        _id = ObjectId(pk)
+        return await delete_card(
+            _id, CardDB.query_db,
+            CardDB.update, raise_404_error)
+
+    except InvalidId:
+        raise_404_error('card', pk)

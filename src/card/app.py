@@ -9,12 +9,12 @@ from src.core.application import (
     list_mixin,
     update_mixin
 )
-from src.bank.domain.card_domain import (
+from card.domain import (
     CardModel,
     CardModelMandatoryRequest,
     CardModelUpdate,
     CardModelUpdateRequest)
-from src.core.domain import (
+from core.domain import (
     callableListDataModel,
     callableUpdateDataModel,
     callableCreateDataModel,

@@ -8,11 +8,11 @@ from core.application import (
     list_mixin,
     update_mixin
 )
-from bank.domain.bank_domain import (
+from bank.domain import (
     BankModel,
     BankModelMandatoryRequest,
     BankModelUpdate,
-    CardModelUpdateRequest
+    BankModelUpdateRequest
 )
 from core.domain import (
     callableListDataModel,
@@ -50,7 +50,7 @@ async def create_bank(
 
 async def update_bank(
         pk: ObjectId,
-        bank_data_update: CardModelUpdateRequest,
+        bank_data_update: BankModelUpdateRequest,
         count_db_bank_callable: callableListDataModel,
         update_db_bank_callable: callableUpdateDataModel,
         raise_404_error: callable404Error

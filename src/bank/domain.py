@@ -13,11 +13,11 @@ class BankModelMandatoryRequest(BaseModel):
     name: str = Field(...)
 
 
-class CardModelUpdateRequest(BaseModel):
+class BankModelUpdateRequest(BaseModel):
     name: Optional[str] = Field(...)
 
 
-class BankModelUpdate(CardModelUpdateRequest):
+class BankModelUpdate(BankModelUpdateRequest):
     updated_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now())
 

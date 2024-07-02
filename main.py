@@ -1,8 +1,8 @@
 import path  # noqa: F401
 from fastapi import FastAPI
 
-from bank.infrastructure.api.bank_api import router as bank_router
-from bank.infrastructure.api.card_api import router as card_router
+from bank.infrastructure.api import router as bank_router
+from card.infrastructure.api import router as card_router
 
 
 app = FastAPI(

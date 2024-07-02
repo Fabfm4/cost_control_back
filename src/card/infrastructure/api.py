@@ -4,11 +4,11 @@ from bson.objectid import InvalidId
 from fastapi import APIRouter, Body, status
 
 from core.infrastructure.db import raise_404_error
-from bank.application.card_app import (
+from card.app import (
     create_card, list_card, get_card, update_card, delete_card)
 from core.domain import bModel, get_collection_model
-from bank.infrastructure.db.card_db import CardDB
-from bank.domain.card_domain import (
+from card.infrastructure.db import CardDB
+from card.domain import (
     CardModel, CardModelMandatoryRequest, CardModelUpdateRequest
 )
 

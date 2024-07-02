@@ -4,14 +4,14 @@ from bson.objectid import InvalidId
 from fastapi import APIRouter, Body, status
 
 from core.infrastructure.db import raise_404_error
-from bank.application.bank_app import (
+from bank.app import (
     create_bank, list_bank, get_bank, update_bank, delete_bank)
 from core.domain import bModel, get_collection_model
-from bank.infrastructure.db.bank_db import BankDB
-from bank.domain.bank_domain import (
+from bank.infrastructure.db import BankDB
+from bank.domain import (
     BankModel,
     BankModelMandatoryRequest,
-    CardModelUpdateRequest
+    BankModelUpdateRequest
 )
 
 
@@ -68,7 +68,8 @@ async def get_bank_router(pk: str):
         response_model=BankModel,
         response_model_by_alias=False,
         )
-async def update_bank_router(pk: str, bank: CardModelUpdateRequest = Body(...)):
+async def update_bank_router(
+        pk: str, bank: BankModelUpdateRequest = Body(...)):
     try:
         _id = ObjectId(pk)
         return await update_bank(

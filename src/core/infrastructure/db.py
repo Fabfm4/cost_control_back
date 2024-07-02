@@ -17,8 +17,9 @@ class MongoDBConection:
 
     def __init__(self):
         MONGODB_URL = os.environ.get('MONGODB_URL')
+        MONGODB_DBNAME = os.environ.get('MONGODB_DBNAME')
         self.client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URL)
-        self.db = self.client.cost_db
+        self.db = getattr(self.client, MONGODB_DBNAME)
         self.collection = self.db.get_collection(
             self.collection_name)
 

@@ -13,7 +13,7 @@ class CardTypeEnum(str, Enum):
 
 class CardModelMandatoryRequest(BaseModel):
     name: str = Field(...)
-    bank_id: PyObjectId = Field(alias='_bank_id')
+    bank_id: PyObjectId = Field(...)
     last_digits: str = Field(...)
     card_type: CardTypeEnum = Field(...)
     deadline_payment: int = Field(...)
@@ -22,7 +22,7 @@ class CardModelMandatoryRequest(BaseModel):
 
 class CardModelUpdateRequest(BaseModel):
     name: Optional[str] = None
-    bank_id: Optional[PyObjectId] = Field(alias='_bank_id', default=None)
+    bank_id: Optional[PyObjectId] = Field(default=None)
     last_digits: Optional[str] = None
     card_type: Optional[CardTypeEnum] = None
     deadline_payment: Optional[int] = None

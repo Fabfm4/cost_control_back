@@ -5,6 +5,7 @@ from bank.infrastructure.api import router as bank_router
 from card.infrastructure.api import router as card_router
 from transaction.infrastructure.api import router as transaction_router
 from transaction_split.infrastructure.api import router as transaction_split_router  # noqa
+from card_balance.infrastructure.api import router as card_balance_router  # noqa
 
 
 app = FastAPI(
@@ -17,3 +18,4 @@ app.include_router(bank_router)
 app.include_router(card_router)
 app.include_router(transaction_router)
 app.include_router(transaction_split_router)
+app.include_router(card_balance_router)

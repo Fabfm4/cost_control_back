@@ -8,16 +8,20 @@ from pydantic import BaseModel, ConfigDict, Field
 from core.domain import PyObjectId, _RawModel
 
 
+SPENDING = 'spending'
+PAYMENT = 'paytment'
+
+
 class TransactionTypeEnum(str, Enum):
-    PAYMENT = 'paytment'
-    SPENDING = 'spending'
+    SPENDING = SPENDING
+    PAYMENT = PAYMENT
 
 
 class TransactionModelMandatoryRequest(BaseModel):
     amount: float = Field(...)
     card_id: PyObjectId = Field(...)
     transaction_type: TransactionTypeEnum = Field(...)
-    description: str = None
+    description: Optional[str] = None
     date: datetime = Field(default_factory=lambda: datetime.now())
 
 

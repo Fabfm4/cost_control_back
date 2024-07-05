@@ -23,24 +23,21 @@ from core.domain import (
 
 
 async def list_bank(
-        list_db_bank_callable: callableListDataModel
-        ) -> List[BankModel]:
+        list_db_bank_callable: callableListDataModel) -> List[BankModel]:
     return await list_mixin(list_db_bank_callable, {"is_active": True})
 
 
 async def get_bank(
         pk: ObjectId,
         get_db_bank_callable: callableListDataModel,
-        raise_404_error: callable404Error
-        ) -> BankModel:
+        raise_404_error: callable404Error) -> BankModel:
     return await get_mixin(pk, get_db_bank_callable, raise_404_error)
 
 
 async def create_bank(
         bank_data: BankModelMandatoryRequest,
         create_db_bank_callable: callableCreateDataModel,
-        get_db_bank_callable: callableListDataModel
-        ) -> BankModel:
+        get_db_bank_callable: callableListDataModel) -> BankModel:
     return await create_mixin(
         bank_data,
         create_db_bank_callable,
@@ -53,8 +50,7 @@ async def update_bank(
         bank_data_update: BankModelUpdateRequest,
         count_db_bank_callable: callableListDataModel,
         update_db_bank_callable: callableUpdateDataModel,
-        raise_404_error: callable404Error
-        ) -> BankModel:
+        raise_404_error: callable404Error) -> BankModel:
     return await update_mixin(
         pk, bank_data_update, count_db_bank_callable, update_db_bank_callable,
         raise_404_error, BankModelUpdate
@@ -65,7 +61,6 @@ async def delete_bank(
         pk: ObjectId,
         get_db_bank_callable: callableListDataModel,
         update_db_bank_callable: callableUpdateDataModel,
-        raise_404_error: callable404Error
-        ) -> None:
+        raise_404_error: callable404Error) -> None:
     return await delete_mixin(
         pk, get_db_bank_callable, update_db_bank_callable, raise_404_error)

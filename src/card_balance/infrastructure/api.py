@@ -22,16 +22,15 @@ CollectionModel: type[bModel] = get_collection_model(CardBalanceModel)
 
 
 @router.get(
-        "/{card_id}",
-        response_description="Get a single transaction",
-        response_model=CardBalanceModel,
-        response_model_by_alias=False,
-        )
+    "/{card_id}",
+    response_description="Get a single transaction",
+    response_model=CardBalanceModel,
+    response_model_by_alias=False)
 async def get_transaction_router(card_id: str):
     try:
-        _card_id = ObjectId(card_id)
+        ObjectId(card_id)
         return await get_balance_by_card_id(
-            _card_id, CardBalanceDB.query_db, raise_404_error)
+            card_id, CardBalanceDB.query_db, raise_404_error)
 
     except InvalidId:
         raise_404_error('transaction', card_id)

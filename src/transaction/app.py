@@ -1,6 +1,9 @@
+import asyncio
 from typing import List
 
 from bson import ObjectId
+from card.domain import CardModel
+from card_balance.app import compute_balance_by_card_id
 from core.application import (
     create_mixin,
     delete_mixin,
@@ -25,28 +28,42 @@ from core.domain import (
 async def list_transaction(
         card_id: str,
         list_db_transaction_callable: callableListDataModel
-        ) -> List[TransactionModel]:
+) -> List[TransactionModel]:
     return await list_mixin(list_db_transaction_callable, {"card_id": card_id})
 
 
 async def get_transaction(
         pk: ObjectId,
         get_db_transaction_callable: callableListDataModel,
-        raise_404_error: callable404Error
-        ) -> TransactionModel:
+        raise_404_error: callable404Error) -> TransactionModel:
     return await get_mixin(pk, get_db_transaction_callable, raise_404_error)
 
 
 async def create_transaction(
-        transaction_data: TransactionModelMandatoryRequest,
-        create_db_transaction_callable: callableCreateDataModel,
-        get_db_transaction_callable: callableListDataModel
-        ) -> TransactionModel:
-    return await create_mixin(
+    transaction_data: TransactionModelMandatoryRequest,
+    create_db_transaction_callable: callableCreateDataModel,
+    get_db_transaction_callable: callableListDataModel,
+    get_db_card_callable: callableListDataModel,
+    get_db_balance_callable: callableListDataModel,
+    create_db_balance_callable: callableCreateDataModel,
+    update_db_balance_callable: callableUpdateDataModel
+) -> TransactionModel:
+    new_transaction = await create_mixin(
         transaction_data,
         create_db_transaction_callable,
         get_db_transaction_callable,
         TransactionModel)
+    card = await get_db_card_callable(
+        {"_id": ObjectId(transaction_data.card_id)})
+    card_model = CardModel(**card)
+    asyncio.create_task(
+        compute_balance_by_card_id(
+            card_model, new_transaction,
+            get_db_balance_callable,
+            update_db_balance_callable,
+            create_db_balance_callable))
+
+    return new_transaction
 
 
 async def update_transaction(
@@ -54,8 +71,7 @@ async def update_transaction(
         transaction_data_update: TransactionModelUpdateRequest,
         count_db_transaction_callable: callableListDataModel,
         update_db_transaction_callable: callableUpdateDataModel,
-        raise_404_error: callable404Error
-        ) -> TransactionModel:
+        raise_404_error: callable404Error) -> TransactionModel:
     return await update_mixin(
         pk, transaction_data_update,
         count_db_transaction_callable, update_db_transaction_callable,
@@ -67,8 +83,7 @@ async def delete_transaction(
         pk: ObjectId,
         get_db_transaction_callable: callableListDataModel,
         update_db_transaction_callable: callableUpdateDataModel,
-        raise_404_error: callable404Error
-        ) -> None:
+        raise_404_error: callable404Error) -> None:
     return await delete_mixin(
         pk, get_db_transaction_callable,
         update_db_transaction_callable, raise_404_error)

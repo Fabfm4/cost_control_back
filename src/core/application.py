@@ -15,16 +15,14 @@ from core.domain import (
 
 async def list_mixin(
         list_db_callable: callableListDataModel,
-        query: dict
-        ) -> List[bModel]:
+        query: dict) -> List[bModel]:
     return await list_db_callable(query)
 
 
 async def get_mixin(
         pk: ObjectId,
         get_db_callable: callableListDataModel,
-        raise_404_error: callable404Error
-        ) -> bModel:
+        raise_404_error: callable404Error) -> bModel:
     object_ = await get_db_callable({'_id': pk})
     if not object_:
         raise_404_error('object', str(pk))
@@ -36,8 +34,7 @@ async def create_mixin(
         data: bmrModel,
         create_db_callable: callableCreateDataModel,
         get_db_callable: callableListDataModel,
-        ClassBaseModel: bModel
-        ) -> bModel:
+        ClassBaseModel: bModel) -> bModel:
     data = ClassBaseModel(
         **data.model_dump(by_alias=True))
 
@@ -54,8 +51,7 @@ async def update_mixin(
         count_db_callable: callableListDataModel,
         update_db_callable: callableUpdateDataModel,
         raise_404_error: callable404Error,
-        ClassBaseUpdateModel: base_upd_mod
-        ) -> bModel:
+        ClassBaseUpdateModel: base_upd_mod) -> bModel:
     if (await count_db_callable({'_id': pk})) < 1:
         raise_404_error('object', str(pk))
 
@@ -69,8 +65,7 @@ async def delete_mixin(
         pk: ObjectId,
         get_db_callable: callableListDataModel,
         update_db_callable: callableUpdateDataModel,
-        raise_404_error: callable404Error
-        ) -> None:
+        raise_404_error: callable404Error) -> None:
     object_ = await get_db_callable({'_id': pk})
     if not object_:
         raise_404_error('object', str(pk))

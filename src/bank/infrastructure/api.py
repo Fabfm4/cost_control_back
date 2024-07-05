@@ -26,32 +26,29 @@ CollectionModel: type[bModel] = get_collection_model(BankModel)
 
 
 @router.get(
-        "/",
-        response_description="List all banks",
-        response_model=CollectionModel,
-        response_model_by_alias=False
-        )
+    "/",
+    response_description="List all banks",
+    response_model=CollectionModel,
+    response_model_by_alias=False)
 async def list_bank_router(q: str = None):
     return CollectionModel(data=await list_bank(BankDB.query_db))
 
 
 @router.post(
-        "/",
-        response_description="Create a new bank",
-        response_model=BankModel,
-        response_model_by_alias=False,
-        status_code=status.HTTP_201_CREATED,
-        )
+    "/",
+    response_description="Create a new bank",
+    response_model=BankModel,
+    response_model_by_alias=False,
+    status_code=status.HTTP_201_CREATED)
 async def create_bank_router(bank: BankModelMandatoryRequest = Body(...)):
     return await create_bank(bank, BankDB.create, BankDB.query_db)
 
 
 @router.get(
-        "/{pk}",
-        response_description="Get a single bank",
-        response_model=BankModel,
-        response_model_by_alias=False,
-        )
+    "/{pk}",
+    response_description="Get a single bank",
+    response_model=BankModel,
+    response_model_by_alias=False)
 async def get_bank_router(pk: str):
     try:
         _id = ObjectId(pk)
@@ -63,11 +60,10 @@ async def get_bank_router(pk: str):
 
 
 @router.put(
-        "/{pk}",
-        response_description="Update a bank",
-        response_model=BankModel,
-        response_model_by_alias=False,
-        )
+    "/{pk}",
+    response_description="Update a bank",
+    response_model=BankModel,
+    response_model_by_alias=False)
 async def update_bank_router(
         pk: str, bank: BankModelUpdateRequest = Body(...)):
     try:
@@ -82,8 +78,7 @@ async def update_bank_router(
 
 @router.delete(
     '/{pk}',
-    response_description="Delete a bank"
-    )
+    response_description="Delete a bank")
 async def delete_bank_router(pk: str):
     try:
         _id = ObjectId(pk)

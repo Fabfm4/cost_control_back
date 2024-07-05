@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from typing import Annotated, Callable, List, Optional, Type, TypeVar
+from typing import Annotated, Callable, List, Optional, Tuple, Type, TypeVar
 
 from pydantic import BaseModel, BeforeValidator, Field, ValidationError
 
@@ -11,16 +11,19 @@ base_upd_mod = TypeVar('base_upd_mod', bound=BaseModel)
 bmrModel = TypeVar('bmrModel', bound=BaseModel)
 
 query_set = TypeVar('query_set', bound=str)
-callableListDataModel = Callable[[Optional[query_set]], List[bModel]]
+callableListDataModel = Callable[
+    [Optional[query_set], Optional[List]], List[bModel]]
 callableCountListDataModel = Callable[[Optional[query_set]], int]
 callableUpdateDataModel = Callable[[str, bModel], bModel]
 callableCreateDataModel = Callable[[bModel], bModel]
 callable404Error = Callable[[str, Optional[str]], None]
+callableGetJoinOneDataModel = Callable[[str, str], Tuple[str, List]]
 
 
 def validate_timestamp(v, handler):
     if v == 'now':
-        # we don't want to bother with further validation, just return the new value
+        # we don't want to bother with further validation,
+        # just return the new value
         return datetime.now()
     try:
         return handler(v)

@@ -25,7 +25,7 @@ from core.domain import (
 async def list_transaction_split(
         card_id: str,
         list_db_transaction_split_callable: callableListDataModel
-        ) -> List[TransactionSplitModel]:
+) -> List[TransactionSplitModel]:
     return await list_mixin(
         list_db_transaction_split_callable, {"card_id": card_id})
 
@@ -34,7 +34,7 @@ async def get_transaction_split(
         pk: ObjectId,
         get_db_transaction_split_callable: callableListDataModel,
         raise_404_error: callable404Error
-        ) -> TransactionSplitModel:
+) -> TransactionSplitModel:
     return await get_mixin(
         pk, get_db_transaction_split_callable, raise_404_error)
 
@@ -43,7 +43,7 @@ async def create_transaction_split(
         transaction_split_data: TransactionSplitModelMandatoryRequest,
         create_db_transaction_split_callable: callableCreateDataModel,
         get_db_transaction_split_callable: callableListDataModel
-        ) -> TransactionSplitModel:
+) -> TransactionSplitModel:
     return await create_mixin(
         transaction_split_data,
         create_db_transaction_split_callable,
@@ -57,7 +57,7 @@ async def update_transaction_split(
         count_db_transaction_split_callable: callableListDataModel,
         update_db_transaction_split_callable: callableUpdateDataModel,
         raise_404_error: callable404Error
-        ) -> TransactionSplitModel:
+) -> TransactionSplitModel:
     return await update_mixin(
         pk, transaction_split_data_update,
         count_db_transaction_split_callable,
@@ -71,7 +71,7 @@ async def delete_transaction_split(
         get_db_transaction_split_callable: callableListDataModel,
         update_db_transaction_split_callable: callableUpdateDataModel,
         raise_404_error: callable404Error
-        ) -> None:
+) -> None:
     return await delete_mixin(
         pk, get_db_transaction_split_callable,
         update_db_transaction_split_callable, raise_404_error)

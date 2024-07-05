@@ -28,24 +28,21 @@ CollectionModel: type[bModel] = get_collection_model(TransactionSplitModel)
 
 
 @router.get(
-        "/",
-        response_description="List all transactions split",
-        response_model=CollectionModel,
-        response_model_by_alias=False
-        )
+    "/",
+    response_description="List all transactions split",
+    response_model=CollectionModel,
+    response_model_by_alias=False)
 async def list_transaction_split_router(card_id: str, q: str = None):
-    print(card_id, q)
     return CollectionModel(data=await list_transaction_split(
         card_id, TransactionSplitDB.query_db))
 
 
 @router.post(
-        "/",
-        response_description="Create a new transactions split",
-        response_model=TransactionSplitModel,
-        response_model_by_alias=False,
-        status_code=status.HTTP_201_CREATED,
-        )
+    "/",
+    response_description="Create a new transactions split",
+    response_model=TransactionSplitModel,
+    response_model_by_alias=False,
+    status_code=status.HTTP_201_CREATED)
 async def create_transaction_split_router(
         transaction_split: TransactionSplitModelMandatoryRequest = Body(...)):
     return await create_transaction_split(
@@ -55,11 +52,10 @@ async def create_transaction_split_router(
 
 
 @router.get(
-        "/{pk}",
-        response_description="Get a single transactions split",
-        response_model=TransactionSplitModel,
-        response_model_by_alias=False,
-        )
+    "/{pk}",
+    response_description="Get a single transactions split",
+    response_model=TransactionSplitModel,
+    response_model_by_alias=False)
 async def get_transaction_split_router(pk: str):
     try:
         _id = ObjectId(pk)
@@ -71,11 +67,10 @@ async def get_transaction_split_router(pk: str):
 
 
 @router.put(
-        "/{pk}",
-        response_description="Update a transactions split",
-        response_model=TransactionSplitModel,
-        response_model_by_alias=False,
-        )
+    "/{pk}",
+    response_description="Update a transactions split",
+    response_model=TransactionSplitModel,
+    response_model_by_alias=False)
 async def update_transaction_split_router(
         pk: str,
         transaction_split: TransactionSplitModelUpdateRequest = Body(...)):
@@ -91,8 +86,7 @@ async def update_transaction_split_router(
 
 @router.delete(
     '/{pk}',
-    response_description="Delete a transactions split"
-    )
+    response_description="Delete a transactions split")
 async def delete_transaction_split_router(pk: str):
     try:
         _id = ObjectId(pk)

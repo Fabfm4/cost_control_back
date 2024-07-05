@@ -9,8 +9,9 @@ class CardBalanceModel(_RawModel):
     card_id: PyObjectId = Field(...)
     month: int = Field(...)
     initial_day: int = Field(...)
-    final_day: int = Field(...)
+    payment_day: int = Field(...)
     year: int = Field(...)
+    number_of_transactions: int = Field(...)
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,

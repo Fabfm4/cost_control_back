@@ -1,6 +1,6 @@
-from app.core.infrastructure.db import MongoDBConection
+from app.core.infrastructure.db.conection_mixin import MixinConnection
 
 
-class CardBalanceDB(MongoDBConection):
+class CardBalanceDB(MixinConnection):
 
-    collection_name = "card_balances"
+    entity_name = "card_balances"

@@ -6,6 +6,11 @@ from app.transaction.infrastructure.api import router as transaction_router
 from app.transaction_split.infrastructure.api import router as transaction_split_router  # noqa
 from app.card_balance.infrastructure.api import router as card_balance_router  # noqa
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 app = FastAPI(
     title="FastAPI Demo",

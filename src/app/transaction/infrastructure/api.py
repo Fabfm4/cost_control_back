@@ -5,7 +5,7 @@ from fastapi import APIRouter, Body, status
 
 from app.card.infrastructure.db import CardDB
 from app.card_balance.infrastructure.db import CardBalanceDB
-from app.core.infrastructure.db import raise_404_error
+from app.core.infrastructure.api.utils import raise_404_error
 from app.transaction.app import (
     create_transaction, list_transaction,
     get_transaction, update_transaction,
@@ -36,7 +36,7 @@ CollectionModel: type[bModel] = get_collection_model(TransactionModel)
     response_model_by_alias=False)
 async def list_transaction_router(card_id: str, q: str = None):
     return CollectionModel(data=await list_transaction(
-        card_id, TransactionDB.query_db))
+        card_id, TransactionDB.query))
 
 
 @router.post(
@@ -50,9 +50,9 @@ async def create_transaction_router(
     return await create_transaction(
         transaction,
         TransactionDB.create,
-        TransactionDB.query_db,
-        CardDB.query_db_one,
-        CardBalanceDB.query_db_one,
+        TransactionDB.query,
+        CardDB.query_index,
+        CardBalanceDB.query_index,
         CardBalanceDB.create,
         CardBalanceDB.update
     )
@@ -67,7 +67,7 @@ async def get_transaction_router(pk: str):
     try:
         _id = ObjectId(pk)
         return await get_transaction(
-            _id, TransactionDB.query_db, raise_404_error)
+            _id, TransactionDB.query, raise_404_error)
 
     except InvalidId:
         raise_404_error('transaction', pk)
@@ -83,7 +83,7 @@ async def update_transaction_router(
     try:
         _id = ObjectId(pk)
         return await update_transaction(
-            _id, transaction, TransactionDB.count_query_db,
+            _id, transaction, TransactionDB.count_query,
             TransactionDB.update, raise_404_error)
 
     except InvalidId:
@@ -97,7 +97,7 @@ async def delete_transaction_router(pk: str):
     try:
         _id = ObjectId(pk)
         return await delete_transaction(
-            _id, TransactionDB.query_db,
+            _id, TransactionDB.query,
             TransactionDB.update, raise_404_error)
 
     except InvalidId:

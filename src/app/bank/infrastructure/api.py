@@ -3,7 +3,7 @@ from bson.objectid import InvalidId
 
 from fastapi import APIRouter, Body, status
 
-from app.core.infrastructure.db import raise_404_error
+from app.core.infrastructure.api.utils import raise_404_error
 from app.bank.app import (
     create_bank, list_bank, get_bank, update_bank, delete_bank)
 from app.core.domain import bModel, get_collection_model
@@ -31,7 +31,7 @@ CollectionModel: type[bModel] = get_collection_model(BankModel)
     response_model=CollectionModel,
     response_model_by_alias=False)
 async def list_bank_router(q: str = None):
-    return CollectionModel(data=await list_bank(BankDB.query_db))
+    return CollectionModel(data=await list_bank(BankDB.query))
 
 
 @router.post(
@@ -41,7 +41,7 @@ async def list_bank_router(q: str = None):
     response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED)
 async def create_bank_router(bank: BankModelMandatoryRequest = Body(...)):
-    return await create_bank(bank, BankDB.create, BankDB.query_db)
+    return await create_bank(bank, BankDB.create, BankDB.query)
 
 
 @router.get(
@@ -53,7 +53,7 @@ async def get_bank_router(pk: str):
     try:
         _id = ObjectId(pk)
         return await get_bank(
-            _id, BankDB.query_db, raise_404_error)
+            _id, BankDB.query_index, raise_404_error)
 
     except InvalidId:
         raise_404_error('bank', pk)
@@ -69,7 +69,7 @@ async def update_bank_router(
     try:
         _id = ObjectId(pk)
         return await update_bank(
-            _id, bank, BankDB.count_query_db,
+            _id, bank, BankDB.count_query,
             BankDB.update, raise_404_error)
 
     except InvalidId:
@@ -83,7 +83,7 @@ async def delete_bank_router(pk: str):
     try:
         _id = ObjectId(pk)
         return await delete_bank(
-            _id, BankDB.query_db,
+            _id, BankDB.query,
             BankDB.update, raise_404_error)
 
     except InvalidId:

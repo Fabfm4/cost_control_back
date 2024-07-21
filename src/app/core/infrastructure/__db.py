@@ -13,7 +13,7 @@ T = TypeVar('T', bound=BaseModel)
 
 class MongoDBConection:
 
-    collection_name = None
+    entity_name = None
 
     def __init__(self):
         MONGODB_URL = os.environ.get('DB_URL_CONNECTION')
@@ -21,7 +21,7 @@ class MongoDBConection:
         self.client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URL)
         self.db = getattr(self.client, MONGODB_DBNAME)
         self.collection = self.db.get_collection(
-            self.collection_name)
+            self.entity_name)
 
     def _build_pipeline_one_to_one(pk: str, table_singular: str):
         mapping_field = f"{table_singular}_map"

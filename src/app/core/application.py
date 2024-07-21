@@ -27,7 +27,7 @@ async def get_mixin(
     if not object_:
         raise_404_error('object', str(pk))
 
-    return object_[0]
+    return object_
 
 
 async def create_mixin(

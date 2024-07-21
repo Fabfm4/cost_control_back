@@ -39,6 +39,8 @@ class TransactionModelUpdate(TransactionModelUpdateRequest):
 
 
 class TransactionModel(_RawModel, TransactionModelMandatoryRequest):
+    split_id: Optional[PyObjectId] = Field(default=None)
+
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )

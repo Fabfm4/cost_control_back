@@ -3,7 +3,7 @@ from bson.objectid import InvalidId
 
 from fastapi import APIRouter, Body, status
 
-from app.core.infrastructure.db import raise_404_error
+from app.core.infrastructure.api.utils import raise_404_error
 from app.transaction_split.app import (
     create_transaction_split, list_transaction_split,
     get_transaction_split, update_transaction_split,
@@ -34,7 +34,7 @@ CollectionModel: type[bModel] = get_collection_model(TransactionSplitModel)
     response_model_by_alias=False)
 async def list_transaction_split_router(card_id: str, q: str = None):
     return CollectionModel(data=await list_transaction_split(
-        card_id, TransactionSplitDB.query_db))
+        card_id, TransactionSplitDB.query))
 
 
 @router.post(
@@ -48,7 +48,7 @@ async def create_transaction_split_router(
     return await create_transaction_split(
         transaction_split,
         TransactionSplitDB.create,
-        TransactionSplitDB.query_db)
+        TransactionSplitDB.query)
 
 
 @router.get(
@@ -60,7 +60,7 @@ async def get_transaction_split_router(pk: str):
     try:
         _id = ObjectId(pk)
         return await get_transaction_split(
-            _id, TransactionSplitDB.query_db, raise_404_error)
+            _id, TransactionSplitDB.query, raise_404_error)
 
     except InvalidId:
         raise_404_error('transaction_split', pk)
@@ -77,7 +77,7 @@ async def update_transaction_split_router(
     try:
         _id = ObjectId(pk)
         return await update_transaction_split(
-            _id, transaction_split, TransactionSplitDB.count_query_db,
+            _id, transaction_split, TransactionSplitDB.count_query,
             TransactionSplitDB.update, raise_404_error)
 
     except InvalidId:
@@ -91,7 +91,7 @@ async def delete_transaction_split_router(pk: str):
     try:
         _id = ObjectId(pk)
         return await delete_transaction_split(
-            _id, TransactionSplitDB.query_db,
+            _id, TransactionSplitDB.query,
             TransactionSplitDB.update, raise_404_error)
 
     except InvalidId:
